@@ -1,0 +1,60 @@
+# Importar el modulo Active Directory
+Import-Module ActiveDirectory
+
+# Verificar que se proporcionen los argumentos esperados
+if ($args.Count -lt 2) {
+    cls
+    Write-Host "Uso: .\script.ps1 <acción> <nombreUsuario>"
+    Write-Host "Acciones disponibles:"
+    Write-Host "chk:  Verificar el estatus del usuario, muestra informacion basica"
+    Write-Host "ul :  Desbloquea el usuario proporcionado"
+    Write-Host "pw :  Forzar el cambio de contraseña en AD"
+    exit
+}
+
+$accion = $args[0]
+$nombreUsuario = $args[1]
+
+# Validar que la accion proporcionada sea valida
+if ($accion -notin @('chk', 'ul', 'pw')) {
+    cls
+    Write-Host "La acción proporcionada no es valida..."
+    exit
+}
+
+switch ($accion) {
+    'chk' {
+        cls
+        Write-Host "Verificar informacion del usuario:"
+        # Recuperar propiedades que nos interesan del usuario
+        Get-ADUser -Identity $nombreUsuario -Properties EmployeeID, GivenName, Surname, UserPrincipalName, Enabled, Lockedout, PasswordExpired, PasswordLastSet, Created, AccountExpirationDate | 
+            Select-Object EmployeeID, GivenName, Surname, UserPrincipalName, Enabled, Lockedout, PasswordExpired, PasswordLastSet, Created, AccountExpirationDate
+    } 
+    'ul' {
+        cls
+        Write-Host "Desbloquear $nombreUsuario en AD"
+        Unlock-ADAccount -Identity $nombreUsuario
+        # Esperar antes de verificar el estado
+        Start-Sleep -Seconds 2
+        Write-Host ""
+        # Obtener y mostrar el estado del usuario
+        $userStatus = Get-ADUser -Identity $nombreUsuario -Properties Lockedout | Select-Object -ExpandProperty Lockedout
+
+        if ($userStatus -eq $false) {
+            Write-Host "Usuario desbloqueado exitosamente"
+        } else {
+            Write-Host "Ha habido un error, volver a intentarlo"
+        }
+    } 
+    'pw' {
+        # Solicitar al usuario una nueva contraseña de forma segura
+        $newPass = Read-Host -Prompt "Ingrese nueva contraseña:" -AsSecureString
+        # Establecer la nueva contraseña y manejar cualquier error
+        try {
+            Set-ADAccountPassword -Identity $nombreUsuario -NewPassword $newPass -Reset
+            Write-Host "Nueva contraseña establecida correctamente"
+        } catch {
+            Write-Host "Error al establecer la nueva contraseña: $_"
+        }
+    }
+}
