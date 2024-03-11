@@ -28,9 +28,17 @@ switch ($accion) {
     'chk' {
         cls
         Write-Host "Verificar informacion del usuario:"
-        # Recuperar propiedades que nos interesan del usuario
-        Get-ADUser -Identity $nombreUsuario -Properties EmployeeID, GivenName, Surname, UserPrincipalName, Enabled, Lockedout, PasswordExpired, PasswordLastSet, Created, AccountExpirationDate | 
-            Select-Object EmployeeID, GivenName, Surname, UserPrincipalName, Enabled, Lockedout, PasswordExpired, PasswordLastSet, Created, AccountExpirationDate
+        # Buscar las propiedades que nos interesan
+        $usuario = Get-ADUser -Identity $nombreUsuario -Properties EmployeeID, GivenName, Surname, UserPrincipalName, Enabled, Lockedout, PasswordExpired, PasswordLastSet, Created, AccountExpirationDate
+
+        if ($usuario.LockedOut) {
+            Write-Host "El usuario esta bloqueado. Desbloqueando..."
+            Unlock-ADAccount -Identity $nombreUsuario
+            Write-Host "Usuario desbloqueado."
+        }
+
+        # Mostrar información del usuario
+        $usuario | Select-Object EmployeeID, GivenName, Surname, UserPrincipalName, Enabled, Lockedout, PasswordExpired, PasswordLastSet, Created, AccountExpirationDate
     } 
     'ul' {
         cls
