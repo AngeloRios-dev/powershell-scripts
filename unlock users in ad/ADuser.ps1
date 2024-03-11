@@ -9,6 +9,7 @@ if ($args.Count -lt 2) {
     Write-Host "Acciones disponibles:"
     Write-Host "        chk :  Verificar estado e informacion basica"
     Write-Host "        ul  :  Desbloquea usuario en AD"
+    Write-Host "        mem  : Mostrar grupos de pertenencia"
     Write-Host "        pw  :  Cambio de contraseña"
     Write-Host ""
     exit
@@ -18,7 +19,7 @@ $accion = $args[0]
 $nombreUsuario = $args[1]
 
 # Validar que la accion proporcionada sea valida
-if ($accion -notin @('chk', 'ul', 'pw')) {
+if ($accion -notin @('chk', 'ul', 'mem', 'pw')) {
     cls
     Write-Host "La acción proporcionada no es valida..."
     exit
@@ -55,7 +56,19 @@ switch ($accion) {
         } else {
             Write-Host "Ha habido un error, volver a intentarlo"
         }
-    } 
+    }
+    'mem' {
+        cls
+        Write-Host "Grupos a los que pertenece:"
+        # Buscar los grupos de los que es miembro el usuario
+        $memberOfGroups = Get-ADUser -Identity $nombreUsuario -Properties MemberOf | Select-Object -ExpandProperty MemberOf
+        # Mostrar los nombres de los grupos
+        foreach ($group in $memberOfGroups) {
+            $groupName = ($group -split ',')[0] -replace '^CN='
+            Write-Host "- $groupName"
+        }
+    }
+     
     'pw' {
         # Solicitar nueva contraseña de forma segura
         $newPass = Read-Host -Prompt "Ingrese nueva contraseña:" -AsSecureString
