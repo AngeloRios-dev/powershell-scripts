@@ -5,10 +5,12 @@ Import-Module ActiveDirectory
 if ($args.Count -lt 2) {
     cls
     Write-Host "Uso: .\script.ps1 <acción> <nombreUsuario>"
+    Write-Host ""
     Write-Host "Acciones disponibles:"
-    Write-Host "chk:  Verificar el estatus del usuario, muestra informacion basica"
-    Write-Host "ul :  Desbloquea el usuario proporcionado"
-    Write-Host "pw :  Forzar el cambio de contraseña en AD"
+    Write-Host "        chk :  Verificar estado e informacion basica"
+    Write-Host "        ul  :  Desbloquea usuario en AD"
+    Write-Host "        pw  :  Cambio de contraseña"
+    Write-Host ""
     exit
 }
 
@@ -47,12 +49,12 @@ switch ($accion) {
         }
     } 
     'pw' {
-        # Solicitar al usuario una nueva contraseña de forma segura
+        # Solicitar nueva contraseña de forma segura
         $newPass = Read-Host -Prompt "Ingrese nueva contraseña:" -AsSecureString
         # Establecer la nueva contraseña y manejar cualquier error
         try {
             Set-ADAccountPassword -Identity $nombreUsuario -NewPassword $newPass -Reset
-            Write-Host "Nueva contraseña establecida correctamente"
+            Write-Host "La nueva contraseña establecida correctamente"
         } catch {
             Write-Host "Error al establecer la nueva contraseña: $_"
         }
