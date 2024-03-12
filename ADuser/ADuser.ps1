@@ -1,3 +1,22 @@
+<#
+    Script: ADuser.ps1
+    Autor: Angelo Rios
+
+    Descripción: Este script de PowerShell proporciona acciones para mejorar la eficiencia al
+    automatizar procesos repetitivos de administracion de usuarios en el Directorio Activo.
+    Desarrollado pensando en las funcionalidades que necesito en mi entorno de trabajo.
+
+
+    Las acciones disponibles incluyen 
+    - verificar el estado e información básica de un usuario, 
+    - desbloquear un usuario en Active Directory, 
+    - mostrar los grupos de pertenencia del usuario y 
+    - cambiar la contraseña del usuario.
+
+    Fecha de creación: 21 de febrero de 2023
+    Última modificación: 12 de marzo de 2024
+#>
+
 # Importar el modulo Active Directory
 Import-Module ActiveDirectory
 
