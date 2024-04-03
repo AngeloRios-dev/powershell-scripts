@@ -27,17 +27,19 @@ function VerificarUsuario {
     )
     cls
     Write-Host "Verificando informacion del usuario:"
-    $usuario = Get-ADUser -Identity $nombreUsuario -Properties Lockedout
+    $bloqueado = Get-ADUser -Identity $nombreUsuario -Properties Lockedout
 
-    if ($usuario.LockedOut) {
+    if ($bloqueado.LockedOut) {
         Write-Host "El usuario esta bloqueado. Desbloqueando..."
         Unlock-ADAccount -Identity $nombreUsuario
         Write-Host "Usuario desbloqueado exitosamente."
+    } else {
+        # Mostrar información del usuario
+        $usuario = Get-ADUser -Identity $nombreUsuario -Properties EmployeeID, GivenName, Surname, UserPrincipalName, Enabled, Lockedout, PasswordExpired, PasswordLastSet, Created, AccountExpirationDate
+        $usuario | Select-Object EmployeeID, GivenName, Surname, UserPrincipalName, Enabled, Lockedout, PasswordExpired, PasswordLastSet, Created, AccountExpirationDate
     }
 
-    # Mostrar información del usuario
-    $usuario = Get-ADUser -Identity $nombreUsuario -Properties EmployeeID, GivenName, Surname, UserPrincipalName, Enabled, Lockedout, PasswordExpired, PasswordLastSet, Created, AccountExpirationDate
-    $usuario | Select-Object EmployeeID, GivenName, Surname, UserPrincipalName, Enabled, Lockedout, PasswordExpired, PasswordLastSet, Created, AccountExpirationDate
+    
 }
 
 # Funcion para desbloquear usuario
